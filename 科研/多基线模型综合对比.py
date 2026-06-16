@@ -402,7 +402,7 @@ if __name__ == "__main__":
     ax1.set_xticks(range(n_models))
     ax1.set_xticklabels(short_names, fontsize=8)
     ax1.set_ylabel('决定系数 R²\nCoefficient of Determination')
-    ax1.set_title('模型 R² 对比\nR² Comparison — Ensemble Models + ML Baselines')
+    ax1.set_title('模型 R² 对比\nR² Comparison')
     ax1.set_ylim(0, max(r2_vals) * 1.18)
     ax1.grid(axis='y', linestyle='--', alpha=0.4)
 
@@ -421,7 +421,7 @@ if __name__ == "__main__":
     ax2.set_xticks(range(n_models))
     ax2.set_xticklabels(short_names, fontsize=8)
     ax2.set_ylabel('均方根误差 RMSE\nRoot Mean Squared Error')
-    ax2.set_title('模型 RMSE 对比\nRMSE Comparison — Ensemble Models + ML Baselines')
+    ax2.set_title('模型 RMSE 对比\nRMSE Comparison')
     ax2.set_ylim(0, max(rmse_vals) * 1.18)
     ax2.grid(axis='y', linestyle='--', alpha=0.4)
 
