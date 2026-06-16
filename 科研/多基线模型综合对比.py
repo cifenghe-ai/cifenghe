@@ -471,29 +471,33 @@ if __name__ == "__main__":
     # MLP 排列重要性
     X_te_for_pi = np.column_stack([L_test, W_test])
     pi_mlp = permutation_importance(mlp_model, X_te_for_pi, Y_test, n_repeats=10, random_state=42)
-    ax4a.bar(['体长 L\nLength', '体宽 W\nWidth'], pi_mlp.importances_mean, width=0.35,
+    mlp_imp = np.nan_to_num(pi_mlp.importances_mean, nan=0.0, posinf=0.0, neginf=0.0)
+    mlp_ylim = max(np.max(mlp_imp), 0.01) * 1.3
+    ax4a.bar(['体长 L\nLength', '体宽 W\nWidth'], mlp_imp, width=0.35,
              color=['#5B9BD5', '#ED7D31'], edgecolor='black')
-    for i, v in enumerate(pi_mlp.importances_mean):
-        ax4a.text(i, v + 0.005, f'{v:.4f}', ha='center', fontsize=9)
+    for i, v in enumerate(mlp_imp):
+        ax4a.text(i, v + mlp_ylim * 0.02, f'{v:.4f}', ha='center', fontsize=9)
     ax4a.set_title('MLP 排列重要性\nMLP Permutation Importance')
     ax4a.set_ylabel('重要性 Importance')
-    ax4a.set_ylim(0, max(pi_mlp.importances_mean) * 1.3)
+    ax4a.set_ylim(0, mlp_ylim)
     ax4a.grid(axis='y', linestyle='--', alpha=0.3)
 
     # SVR 排列重要性
     pi_svr = permutation_importance(svr_model, X_te_for_pi, Y_test, n_repeats=10, random_state=42)
-    ax4b.bar(['体长 L\nLength', '体宽 W\nWidth'], pi_svr.importances_mean, width=0.35,
+    svr_imp = np.nan_to_num(pi_svr.importances_mean, nan=0.0, posinf=0.0, neginf=0.0)
+    svr_ylim = max(np.max(svr_imp), 0.01) * 1.3
+    ax4b.bar(['体长 L\nLength', '体宽 W\nWidth'], svr_imp, width=0.35,
              color=['#5B9BD5', '#ED7D31'], edgecolor='black')
-    for i, v in enumerate(pi_svr.importances_mean):
-        ax4b.text(i, v + 0.005, f'{v:.4f}', ha='center', fontsize=9)
+    for i, v in enumerate(svr_imp):
+        ax4b.text(i, v + svr_ylim * 0.02, f'{v:.4f}', ha='center', fontsize=9)
     ax4b.set_title('SVR 排列重要性\nSVR Permutation Importance')
     ax4b.set_ylabel('重要性 Importance')
-    ax4b.set_ylim(0, max(pi_svr.importances_mean) * 1.3)
+    ax4b.set_ylim(0, svr_ylim)
     ax4b.grid(axis='y', linestyle='--', alpha=0.3)
 
-    plt.tight_layout()
+    plt.tight_layout(pad=1.0)
     save_path4 = os.path.join(desktop, 'MLP_SVR_feature_importance.jpg')
-    plt.savefig(save_path4, format='jpg', dpi=600, bbox_inches='tight')
+    plt.savefig(save_path4, format='jpg', dpi=600)
     print(f"特征重要性图已保存：{save_path4}")
     plt.show()
 
