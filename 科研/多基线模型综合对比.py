@@ -503,9 +503,6 @@ if __name__ == "__main__":
 
     # --- 图5：MLP 预测值 vs 真实值 ---
     fig5, ax5 = plt.subplots(figsize=(8, 7))
-    y_min = min(Y_test.min(), mlp_pred.min())
-    y_max = max(Y_test.max(), mlp_pred.max())
-    ax5.plot([y_min, y_max], [y_min, y_max], 'k--', linewidth=0.8, alpha=0.4)
     ax5.scatter(Y_test, mlp_pred, c='#ff7f0e', s=25, alpha=0.75,
                 edgecolors='black', linewidth=0.3)
     r2_mlp = r2_score(Y_test, mlp_pred)
@@ -522,9 +519,6 @@ if __name__ == "__main__":
 
     # --- 图6：SVR 预测值 vs 真实值 ---
     fig6, ax6 = plt.subplots(figsize=(8, 7))
-    y_min = min(Y_test.min(), svr_pred.min())
-    y_max = max(Y_test.max(), svr_pred.max())
-    ax6.plot([y_min, y_max], [y_min, y_max], 'k--', linewidth=0.8, alpha=0.4)
     ax6.scatter(Y_test, svr_pred, c='#d62728', s=25, alpha=0.75,
                 edgecolors='black', linewidth=0.3)
     r2_svr = r2_score(Y_test, svr_pred)
