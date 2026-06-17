@@ -155,7 +155,7 @@ def train_W2_FROE(L, W, Y, max_degree=12, err_threshold=0.99):
         def predict(self, P):
             return P[:, self.selected] @ self.theta
 
-    return W2_pred, W2Model(theta, selected), sL, sW, P
+    return W2_pred, W2Model(theta, selected), sL, sW, P, names
 
 
 # =====================================================
@@ -303,13 +303,15 @@ if __name__ == "__main__":
         return p[0] * (np.maximum(Lv, epsilon) ** p[1]) * (np.maximum(Wv, epsilon) ** p[2])
     W1_test = W1_predict(L_test, W_test, w1_param)
     results['W1 (幂函数)'] = W1_test
+    k, b, d = w1_param
     print(f"  W1 测试集 R² = {r2_score(Y_test, W1_test):.6f}")
+    print(f"  模型形式: Weight = {k:.6f} × L^{b:.4f} × W^{d:.4f}")
 
     # --- W2 FROE 正交回归 ---
     print("\n" + "=" * 60)
     print("  [2/5] W2 — FROE 正交回归")
     print("=" * 60)
-    W2_tr, w2_model, sL, sW, P_train = train_W2_FROE(L_train, W_train, Y_train)
+    W2_tr, w2_model, sL, sW, P_train, W2_names = train_W2_FROE(L_train, W_train, Y_train)
 
     Ls_test = sL.transform(L_test.reshape(-1, 1)).ravel()
     Ws_test = sW.transform(W_test.reshape(-1, 1)).ravel()
@@ -327,6 +329,10 @@ if __name__ == "__main__":
     W2_test = w2_model.predict(P_test)
     results['W2 (FROE)'] = W2_test
     print(f"  W2 测试集 R² = {r2_score(Y_test, W2_test):.6f}")
+    sel_idx = w2_model.selected
+    sel_names = [W2_names[i] for i in sel_idx]
+    print(f"  入选项数: {len(sel_idx)} (累计ERR ≥ 0.99)")
+    print(f"  模型形式: Weight = " + " + ".join([f"{c:.6f}·{n}" for c, n in zip(w2_model.theta, sel_names)]))
 
     # --- W3 线性融合 ---
     print("\n" + "=" * 60)
@@ -336,6 +342,7 @@ if __name__ == "__main__":
     W3_test = alpha1 * W1_test + alpha2 * W2_test
     results['W3 (线性融合)'] = W3_test
     print(f"  W3 测试集 R² = {r2_score(Y_test, W3_test):.6f}")
+    print(f"  模型形式: W3 = {alpha1:.4f} × W1 + {alpha2:.4f} × W2")
 
     # --- MLP 神经网络 ---
     print("\n" + "=" * 60)
@@ -344,6 +351,9 @@ if __name__ == "__main__":
     mlp_pred, mlp_model, mlp_sX, mlp_sY = train_mlp(L_train, W_train, Y_train, L_test, W_test)
     results['MLP (神经网络)'] = mlp_pred
     print(f"  MLP 测试集 R² = {r2_score(Y_test, mlp_pred):.6f}")
+    print(f"  隐藏层结构: {mlp_model.hidden_layer_sizes}")
+    print(f"  激活函数: {mlp_model.activation}, 正则化alpha: {mlp_model.alpha}")
+    print(f"  总权重数: {sum(w.size for w in mlp_model.coefs_) + sum(b.size for b in mlp_model.intercepts_)}")
 
     # --- SVR 支持向量回归 ---
     print("\n" + "=" * 60)
@@ -352,6 +362,8 @@ if __name__ == "__main__":
     svr_pred, svr_model, svr_sX, svr_sY = train_svr(L_train, W_train, Y_train, L_test, W_test)
     results['SVR (支持向量)'] = svr_pred
     print(f"  SVR 测试集 R² = {r2_score(Y_test, svr_pred):.6f}")
+    print(f"  核函数: {svr_model.kernel}, C: {svr_model.C}, gamma: {svr_model.gamma}, epsilon: {svr_model.epsilon}")
+    print(f"  支持向量数: {svr_model.n_support_} (总数: {sum(svr_model.n_support_)})")
 
     # ==================== 3. 汇总评估 ====================
     print("\n" + "=" * 70)
