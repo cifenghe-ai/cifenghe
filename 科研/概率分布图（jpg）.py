@@ -81,6 +81,7 @@ for var in variables:
 
     plt.legend()
     plt.grid(alpha=0.3)
+    plt.xlim(left=0)  # 防止KDE外推产生负值
     plt.tight_layout()
 
     # ==================== 保存 JPG（600 dpi） ====================
