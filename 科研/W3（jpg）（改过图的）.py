@@ -315,14 +315,17 @@ if __name__ == "__main__":
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
 
     # ---- 子图1：多项式拟合曲线 (W2 FROE) ----
-    ax1.scatter(Y_test, W2_test_pred, marker='o', s=20, c='#4A90D9', alpha=0.6,
-                label='预测体重 (Predicted Weight)')
+    sort_idx = np.argsort(Y_test)
+    ax1.scatter(Y_test, W2_test_pred, marker='o', s=18, c='#4A90D9', alpha=0.5,
+                edgecolors='black', linewidth=0.2, label='预测 vs 真实 (Pred vs Actual)')
+    ax1.plot(Y_test[sort_idx], W2_test_pred[sort_idx], 'b-', linewidth=1.5, alpha=0.7,
+             label='多项式拟合曲线 (Fitted Curve)')
     y_lim = (min(Y_test.min(), W2_test_pred.min()), max(Y_test.max(), W2_test_pred.max()))
     ax1.plot(y_lim, y_lim, 'k--', linewidth=0.8, alpha=0.4)
     ax1.set_xlabel('体重 (g)\nWeight (g)')
     ax1.set_ylabel('真实体重\预测体重 (g)\nActual Weight\Predicted Weight (g)')
     ax1.set_title('多项式拟合曲线 (W2 FROE)\nPolynomial Fit Curve')
-    ax1.legend()
+    ax1.legend(fontsize=7)
     ax1.grid(True)
 
     # ---- 子图2：Gompertz 拟合曲线 ----
