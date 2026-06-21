@@ -314,48 +314,53 @@ if __name__ == "__main__":
         gomp_r2 = 0.0
 
     # --- 1×3 子图 ---
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
-
-    # ---- 子图1：多项式拟合 (W2 FROE) ----
-    ax1.scatter(Y_test, W2_test_pred, c='#4A90D9', s=18, alpha=0.7,
-                edgecolors='black', linewidth=0.3)
-    y_lim1 = (min(Y_test.min(), W2_test_pred.min()), max(Y_test.max(), W2_test_pred.max()))
-    ax1.plot(y_lim1, y_lim1, 'k--', linewidth=0.8, alpha=0.4)
     r2_w2 = r2_score(Y_test, W2_test_pred)
     rmse_w2 = np.sqrt(mean_squared_error(Y_test, W2_test_pred))
-    ax1.set_xlabel('真实体重 (g)\nActual Weight')
-    ax1.set_ylabel('预测体重 (g)\nPredicted Weight')
-    ax1.set_title(f'多项式拟合 (W2 FROE)\nPolynomial Fit\nR² = {r2_w2:.4f}   RMSE = {rmse_w2:.2f}')
-    ax1.grid(alpha=0.3)
-
-    # ---- 子图2：Gompertz 拟合 ----
-    ax2.scatter(L, Y, c='#5B9BD5', s=14, alpha=0.6, edgecolors='black', linewidth=0.2,
-                label='训练数据 (Training)')
-    if gomp_ok:
-        a_g, b_g, c_g = gomp_popt
-        ax2.plot(L_sorted, gomp_curve, 'r-', linewidth=2,
-                 label=f'Gompertz: {a_g:.2f}·exp(-{b_g:.4f}·exp(-{c_g:.4f}·L))')
-        ax2.set_title(f'Gompertz 拟合\nGompertz Fit\nR² = {gomp_r2:.4f}')
-    else:
-        ax2.set_title('Gompertz 拟合\nGompertz Fit (拟合失败)')
-    ax2.set_xlabel('体长 L (cm)\nLength')
-    ax2.set_ylabel('体重 (g)\nWeight')
-    ax2.legend(fontsize=6)
-    ax2.grid(alpha=0.3)
-
-    # ---- 子图3：W3 融合模型预测 vs 真实 ----
-    ax3.scatter(Y_test, W3_test_pred, c='#2ca02c', s=18, alpha=0.7,
-                edgecolors='black', linewidth=0.3)
-    y_lim3 = (min(Y_test.min(), W3_test_pred.min()), max(Y_test.max(), W3_test_pred.max()))
-    ax3.plot(y_lim3, y_lim3, 'k--', linewidth=0.8, alpha=0.4)
     r2_w3 = r2_score(Y_test, W3_test_pred)
     rmse_w3 = np.sqrt(mean_squared_error(Y_test, W3_test_pred))
-    ax3.set_xlabel('真实体重 (g)\nActual Weight')
-    ax3.set_ylabel('预测体重 (g)\nPredicted Weight')
+
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+
+    # ---- 子图1：多项式拟合曲线 (W2 FROE) ----
+    sort_idx = np.argsort(Y_test)
+    ax1.plot(range(len(Y_test)), Y_test[sort_idx], 'o-', c='#1f77b4', markersize=4,
+             linewidth=1.2, markerfacecolor='white', label='真实值 (Actual)')
+    ax1.plot(range(len(Y_test)), W2_test_pred[sort_idx], 's-', c='#ff7f0e', markersize=4,
+             linewidth=1.2, markerfacecolor='white', label='W2 预测值 (Predicted)')
+    ax1.set_xlabel('样本序号（按体重升序）\nSample Index (Sorted by Weight)')
+    ax1.set_ylabel('体重 (g)\nWeight')
+    ax1.set_title(f'多项式拟合曲线 (W2 FROE)\nPolynomial Fit Curve\nR² = {r2_w2:.4f}   RMSE = {rmse_w2:.2f}')
+    ax1.legend(fontsize=7, loc='upper left')
+    ax1.grid(alpha=0.3)
+
+    # ---- 子图2：Gompertz 拟合曲线 ----
+    ax2.scatter(L, Y, c='#5B9BD5', s=14, alpha=0.6, edgecolors='black', linewidth=0.2,
+                label='训练数据 (Training Data)')
+    if gomp_ok:
+        a_g, b_g, c_g = gomp_popt
+        ax2.plot(L_sorted, gomp_curve, 'r-', linewidth=2, label='Gompertz 拟合曲线 (Fitted Curve)')
+        gomp_eq = f'$W={a_g:.1f}\\cdot e^{{-{b_g:.3f}\\cdot e^{{-{c_g:.4f}\\cdot L}}}}$'
+        ax2.set_title(f'Gompertz 拟合曲线\nGompertz Fit Curve\n{gomp_eq}\nR² = {gomp_r2:.4f}')
+    else:
+        ax2.set_title('Gompertz 拟合曲线\nGompertz Fit Curve (拟合失败)')
+    ax2.set_xlabel('体长 L (cm)\nLength')
+    ax2.set_ylabel('体重 (g)\nWeight')
+    ax2.legend(fontsize=7, loc='lower right')
+    ax2.grid(alpha=0.3)
+
+    # ---- 子图3：W3 融合模型预测 vs 真实曲线 ----
+    sort_idx3 = np.argsort(Y_test)
+    ax3.plot(range(len(Y_test)), Y_test[sort_idx3], 'o-', c='#1f77b4', markersize=4,
+             linewidth=1.2, markerfacecolor='white', label='真实值 (Actual)')
+    ax3.plot(range(len(Y_test)), W3_test_pred[sort_idx3], '^-', c='#d62728', markersize=4,
+             linewidth=1.2, markerfacecolor='white', label='W3 预测值 (Predicted)')
+    ax3.set_xlabel('样本序号（按体重升序）\nSample Index (Sorted by Weight)')
+    ax3.set_ylabel('体重 (g)\nWeight')
     ax3.set_title(f'W3 融合模型预测 vs 真实\nW3 Fusion Pred vs Actual\nR² = {r2_w3:.4f}   RMSE = {rmse_w3:.2f}')
+    ax3.legend(fontsize=7, loc='upper left')
     ax3.grid(alpha=0.3)
 
-    fig.suptitle('多项式拟合 · Gompertz 拟合 · 融合模型预测对比\nPolynomial · Gompertz · Fusion Model Comparison',
+    fig.suptitle('多项式拟合曲线 · Gompertz 拟合曲线 · 融合模型预测对比\nPolynomial · Gompertz · Fusion Model Comparison',
                  fontsize=11, y=1.02)
     plt.tight_layout()
 
