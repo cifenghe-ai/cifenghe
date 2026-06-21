@@ -283,88 +283,39 @@ if __name__ == "__main__":
 
     else:
         print(f"\n===== 测试集数据格式错误 =====")
-    # ==================== 三合一图：多项式拟合 + Gompertz拟合 + W3融合预测对比 ====================
+    # ==================== 绘制 W3 融合模型预测 vs 真实对比图 ====================
     import matplotlib.pyplot as plt
     import os
 
+    # 设置中文字体
     plt.rcParams['font.family'] = ['Times New Roman', 'SimSun']
-    plt.rcParams['font.size'] = 8
+    plt.rcParams['font.size'] = 8  # 修改为8 pt
     plt.rcParams['axes.unicode_minus'] = False
 
     desktop = r'C:\Users\33701\Desktop'
 
-    # --- Gompertz 拟合: Weight = a * exp(-b * exp(-c * L)) ---
-    def gompertz(L_vals, a, b, c):
-        return a * np.exp(-b * np.exp(-c * L_vals))
+    #========================================================================================
+    "请不要用那可笑的改这里"
+    plt.figure(figsize=(6, 6))
+    plt.scatter(Y_test, Y_test, marker='x', s=30, c='blue', alpha=0.6, label='真实体重 （Actual Weight）')
+    plt.scatter(Y_test, W3_test_pred, marker='o', s=30, c='green', alpha=0.6, label='预测体重 （Predicted Weight）')
 
-    try:
-        gomp_popt, _ = curve_fit(
-            gompertz, L, Y,
-            p0=[np.max(Y), 2.0, 0.05],
-            bounds=([0, 0, 0], [np.inf, 10, 1]),
-            maxfev=20000
-        )
-        gomp_pred_train = gompertz(L, *gomp_popt)
-        gomp_r2 = r2_score(Y, gomp_pred_train)
-        L_sorted = np.linspace(L.min(), L.max(), 200)
-        gomp_curve = gompertz(L_sorted, *gomp_popt)
-        gomp_ok = True
-    except Exception:
-        gomp_ok = False
-        gomp_r2 = 0.0
-
-    # --- 1×3 子图 ---
-    r2_w2 = r2_score(Y_test, W2_test_pred)
-    rmse_w2 = np.sqrt(mean_squared_error(Y_test, W2_test_pred))
-    r2_w3 = r2_score(Y_test, W3_test_pred)
-    rmse_w3 = np.sqrt(mean_squared_error(Y_test, W3_test_pred))
-
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
-
-    # ---- 子图1：多项式拟合曲线 (W2 FROE) ----
-    sort_idx = np.argsort(Y_test)
-    ax1.plot(range(len(Y_test)), Y_test[sort_idx], 'o-', c='#1f77b4', markersize=4,
-             linewidth=1.2, markerfacecolor='white', label='真实值 (Actual)')
-    ax1.plot(range(len(Y_test)), W2_test_pred[sort_idx], 's-', c='#ff7f0e', markersize=4,
-             linewidth=1.2, markerfacecolor='white', label='W2 预测值 (Predicted)')
-    ax1.set_xlabel('样本序号（按体重升序）\nSample Index (Sorted by Weight)')
-    ax1.set_ylabel('体重 (g)\nWeight')
-    ax1.set_title(f'多项式拟合曲线 (W2 FROE)\nPolynomial Fit Curve\nR² = {r2_w2:.4f}   RMSE = {rmse_w2:.2f}')
-    ax1.legend(fontsize=7, loc='upper left')
-    ax1.grid(alpha=0.3)
-
-    # ---- 子图2：Gompertz 拟合曲线 ----
-    ax2.scatter(L, Y, c='#5B9BD5', s=14, alpha=0.6, edgecolors='black', linewidth=0.2,
-                label='训练数据 (Training Data)')
-    if gomp_ok:
-        a_g, b_g, c_g = gomp_popt
-        ax2.plot(L_sorted, gomp_curve, 'r-', linewidth=2, label='Gompertz 拟合曲线 (Fitted Curve)')
-        gomp_eq = f'$W={a_g:.1f}\\cdot e^{{-{b_g:.3f}\\cdot e^{{-{c_g:.4f}\\cdot L}}}}$'
-        ax2.set_title(f'Gompertz 拟合曲线\nGompertz Fit Curve\n{gomp_eq}\nR² = {gomp_r2:.4f}')
-    else:
-        ax2.set_title('Gompertz 拟合曲线\nGompertz Fit Curve (拟合失败)')
-    ax2.set_xlabel('体长 L (cm)\nLength')
-    ax2.set_ylabel('体重 (g)\nWeight')
-    ax2.legend(fontsize=7, loc='lower right')
-    ax2.grid(alpha=0.3)
-
-    # ---- 子图3：W3 融合模型预测 vs 真实曲线 ----
-    sort_idx3 = np.argsort(Y_test)
-    ax3.plot(range(len(Y_test)), Y_test[sort_idx3], 'o-', c='#1f77b4', markersize=4,
-             linewidth=1.2, markerfacecolor='white', label='真实值 (Actual)')
-    ax3.plot(range(len(Y_test)), W3_test_pred[sort_idx3], '^-', c='#d62728', markersize=4,
-             linewidth=1.2, markerfacecolor='white', label='W3 预测值 (Predicted)')
-    ax3.set_xlabel('样本序号（按体重升序）\nSample Index (Sorted by Weight)')
-    ax3.set_ylabel('体重 (g)\nWeight')
-    ax3.set_title(f'W3 融合模型预测 vs 真实\nW3 Fusion Pred vs Actual\nR² = {r2_w3:.4f}   RMSE = {rmse_w3:.2f}')
-    ax3.legend(fontsize=7, loc='upper left')
-    ax3.grid(alpha=0.3)
-
-    fig.suptitle('多项式拟合曲线 · Gompertz 拟合曲线 · 融合模型预测对比\nPolynomial · Gompertz · Fusion Model Comparison',
-                 fontsize=11, y=1.02)
+    plt.xlabel('体重 (g)\nWeight (g)')
+    plt.ylabel('真实体重\预测体重 (g)\nActual Weight\Predicted Weight (g)')
+    plt.title('实际体重与预测体重对比\nActual vs Predicted Weight')
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
+    #========================================================================================
+    
+    # ==================== 改这里 ====================
+    save_path = os.path.join(desktop, 'W3_pred_vs_true.jpg')
 
-    save_path = os.path.join(desktop, 'W3_三合一对比图.jpg')
-    plt.savefig(save_path, format='jpg', dpi=600, bbox_inches='tight')
-    print(f"\n三合一对比图已保存至：{save_path}")
+    plt.savefig(save_path,
+                format='jpg',
+                dpi=600,
+                bbox_inches='tight')
+
+    print(f"\nW3 对比图已保存至：{save_path}")
+
     plt.show()
